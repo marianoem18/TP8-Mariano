@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 # Título de la aplicación
 st.title("Análisis de Ventas por Producto")
@@ -30,19 +31,6 @@ selected_branch = st.sidebar.selectbox("Seleccionar Sucursal", sucursales)
 if selected_branch != "Todas":
     data = data[data["Sucursal"] == selected_branch]
 
-# Convertir columnas Año y Mes a formato de fecha
-try:
-    # Construir columna de fecha combinando Año y Mes
-    data["Fecha"] = pd.to_datetime(
-        data["Año"].astype(str) + "-" + data["Mes"].astype(str) + "-01",
-        errors="coerce"
-    )
-    # Eliminar filas con fechas inválidas
-    data = data.dropna(subset=["Fecha"])
-except Exception as e:
-    st.error(f"Error al crear las fechas: {e}")
-    st.stop()
-
 # Calcular métricas para cada producto
 st.header(f"Datos de la sucursal: {selected_branch}")
 
@@ -56,18 +44,34 @@ for producto in productos:
     costo_total = prod_data["Costo_total"].sum()
     precio_promedio = ingreso_total / unidades_vendidas if unidades_vendidas > 0 else 0
     margen_promedio = ((ingreso_total - costo_total) / ingreso_total) if ingreso_total > 0 else 0
-    
-    # Mostrar resultados
-    st.subheader(producto)
-    st.write(f"**Precio Promedio:** ${precio_promedio:.2f}")
-    st.write(f"**Margen Promedio:** {margen_promedio:.2%}")
-    st.write(f"**Unidades Vendidas:** {int(unidades_vendidas)}")
 
-    # Evolución de ventas
+    # Simular deltas de ejemplo (puedes reemplazar estos valores por cálculos reales)
+    delta_precio = 10.5  # Ejemplo: aumento del precio promedio en 10.5%
+    delta_margen = -2.3  # Ejemplo: disminución del margen en 2.3%
+    delta_unidades = 5.7  # Ejemplo: aumento de unidades vendidas en 5.7%
+
+    # Crear columna 'Fecha' para el gráfico
+    prod_data["Fecha"] = pd.to_datetime(prod_data["Año"].astype(str) + '-' + prod_data["Mes"].astype(str) + '-01', errors="coerce")
     ventas_mensuales = prod_data.groupby("Fecha").sum(numeric_only=True).reset_index()
 
-    # Graficar
-    st.line_chart(
-        ventas_mensuales.set_index("Fecha")["Unidades_vendidas"],
-        use_container_width=True,
-    )
+    # Crear columnas para organizar el diseño
+    col1, col2 = st.columns([1, 2])  # Col1: Métricas, Col2: Gráfico
+
+    with col1:
+        # Mostrar las métricas con porcentaje (delta)
+        st.subheader(producto)
+        st.metric("Precio Promedio", f"${precio_promedio:,.2f}", f"{delta_precio:.2f}%", delta_color="normal")
+        st.metric("Margen Promedio", f"{margen_promedio:.2%}", f"{delta_margen:.2f}%", delta_color="normal")
+        st.metric("Unidades Vendidas", f"{int(unidades_vendidas):,}", f"{delta_unidades:.2f}%", delta_color="normal")
+
+    with col2:
+        # Gráfico de la evolución de ventas
+        if not ventas_mensuales.empty:
+            st.line_chart(
+                ventas_mensuales.set_index("Fecha")["Unidades_vendidas"],
+                use_container_width=True,
+            )
+        else:
+            st.warning(f"No hay datos suficientes para generar un gráfico de ventas para {producto}.")
+
+    st.divider()
