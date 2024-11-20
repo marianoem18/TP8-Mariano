@@ -30,6 +30,19 @@ selected_branch = st.sidebar.selectbox("Seleccionar Sucursal", sucursales)
 if selected_branch != "Todas":
     data = data[data["Sucursal"] == selected_branch]
 
+# Convertir columnas Año y Mes a formato de fecha
+try:
+    # Construir columna de fecha combinando Año y Mes
+    data["Fecha"] = pd.to_datetime(
+        data["Año"].astype(str) + "-" + data["Mes"].astype(str) + "-01",
+        errors="coerce"
+    )
+    # Eliminar filas con fechas inválidas
+    data = data.dropna(subset=["Fecha"])
+except Exception as e:
+    st.error(f"Error al crear las fechas: {e}")
+    st.stop()
+
 # Calcular métricas para cada producto
 st.header(f"Datos de la sucursal: {selected_branch}")
 
@@ -51,27 +64,9 @@ for producto in productos:
     st.write(f"**Unidades Vendidas:** {int(unidades_vendidas)}")
 
     # Evolución de ventas
-    ventas_mensuales = prod_data.groupby(["Año", "Mes"]).sum(numeric_only=True).reset_index()
+    ventas_mensuales = prod_data.groupby("Fecha").sum(numeric_only=True).reset_index()
 
-    # Añadir una columna 'Día' con un valor fijo (1)
-    ventas_mensuales["Día"] = 1
-
-    # Validar que las columnas Año y Mes son numéricas
-    ventas_mensuales["Año"] = pd.to_numeric(ventas_mensuales["Año"], errors="coerce")
-    ventas_mensuales["Mes"] = pd.to_numeric(ventas_mensuales["Mes"], errors="coerce")
-    
-    # Filtrar filas con valores válidos en Año y Mes
-    ventas_mensuales = ventas_mensuales.dropna(subset=["Año", "Mes"])
-
-    # Crear la columna "Fecha"
-    try:
-        ventas_mensuales["Fecha"] = pd.to_datetime(ventas_mensuales[["Año", "Mes", "Día"]])
-    except Exception as e:
-        st.error(f"No se pudo crear la columna 'Fecha' para {producto}. Error: {e}")
-        continue
-
-    # Ordenar por fecha y graficar
-    ventas_mensuales = ventas_mensuales.sort_values("Fecha")
+    # Graficar
     st.line_chart(
         ventas_mensuales.set_index("Fecha")["Unidades_vendidas"],
         use_container_width=True,
