@@ -53,11 +53,16 @@ for producto in productos:
     # Evolución de ventas
     ventas_mensuales = prod_data.groupby(["Año", "Mes"]).sum(numeric_only=True).reset_index()
 
+    # Añadir una columna 'Día' con un valor fijo (1)
     ventas_mensuales["Día"] = 1
+
     # Validar que las columnas Año y Mes son numéricas
     ventas_mensuales["Año"] = pd.to_numeric(ventas_mensuales["Año"], errors="coerce")
     ventas_mensuales["Mes"] = pd.to_numeric(ventas_mensuales["Mes"], errors="coerce")
     
+    # Filtrar filas con valores válidos en Año y Mes
+    ventas_mensuales = ventas_mensuales.dropna(subset=["Año", "Mes"])
+
     # Crear la columna "Fecha"
     try:
         ventas_mensuales["Fecha"] = pd.to_datetime(ventas_mensuales[["Año", "Mes", "Día"]])
