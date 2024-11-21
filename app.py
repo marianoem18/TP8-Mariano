@@ -61,9 +61,19 @@ def generar_grafico(ventas_mensuales, producto):
     ax.set_xlabel("Fecha", fontsize=12)
     ax.set_ylabel("Unidades Vendidas", fontsize=12)
     ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
+
+    # Formatear eje X
+    ax.xaxis.set_minor_locator(mdates.MonthLocator())  # Líneas divisorias mensuales
+    ax.xaxis.set_major_locator(mdates.YearLocator())  # Líneas divisorias anuales
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))  # Mostrar solo años en las etiquetas principales
+    ax.tick_params(axis="x", rotation=45)  # Rotar las etiquetas para mejor legibilidad
+
+    # Mostrar líneas verticales menores para cada mes
+    ax.grid(which="minor", color="gray", linestyle="--", linewidth=0.5, alpha=0.5)
+
+    # Leyenda
     ax.legend()
     return fig
-
 
 
 st.title("Análisis de Ventas por producto")
@@ -99,6 +109,7 @@ if archivo_cargado:
             variaciones = calcular_variaciones(prod_datos, producto)
 
             # Mostrar métricas
+            st.divider()  # Separar productos con una línea
             col1, col2 = st.columns([1, 2])
             with col1:
                 st.subheader(producto)
