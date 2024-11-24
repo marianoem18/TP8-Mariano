@@ -67,6 +67,7 @@ def main():
                 save_csv(stock_df, "stock.csv")
                 st.success("Producto agregado al stock.")
 
+<<<<<<< HEAD
         # Eliminar producto del stock
         st.subheader("Eliminar Producto del Stock")
         id_stock_to_delete = st.number_input("ID Stock a Eliminar", min_value=0, step=1)
@@ -93,10 +94,20 @@ def main():
     elif choice == "Gestión de Proveedores":
         st.header("Gestión de Proveedores")
         proveedores_df = load_csv("proveedores.csv")
+=======
+    # Configuraciones del gráfico
+    ax.set_title(f"Evolución de Ventas Mensuales - {producto}", fontsize=14)
+    ax.set_xlabel("Fecha", fontsize=12)
+    ax.set_ylabel("Unidades Vendidas", fontsize=12)
+    ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
+    ax.legend()
+    return fig
+>>>>>>> parent of 70ad468 (Ultimo corregido)
 
         st.subheader("Lista de Proveedores")
         st.dataframe(proveedores_df)
 
+<<<<<<< HEAD
         # Agregar nuevo proveedor
         st.subheader("Agregar Nuevo Proveedor")
         id_proveedor = st.text_input("ID Proveedor")
@@ -104,6 +115,10 @@ def main():
         direccion = st.text_input("Dirección")
         telefono = st.text_input("Teléfono")
         email = st.text_input("Email")
+=======
+
+st.title("Análisis de Ventas por producto")
+>>>>>>> parent of 70ad468 (Ultimo corregido)
 
         if st.button("Agregar Proveedor"):
             if not id_proveedor or not nombre:
@@ -152,6 +167,7 @@ def main():
         stock_df = load_csv("stock.csv")
         ventas_df = load_csv("ventas.csv")
 
+<<<<<<< HEAD
         productos_seleccionados = st.multiselect(
             "Seleccionar Productos",
             stock_df["id_producto"].tolist(),
@@ -188,3 +204,20 @@ def main():
 
 if __name__ == "__main__":
     main()
+=======
+            # Mostrar métricas
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                st.subheader(producto)
+                st.metric("Precio Promedio", f"${precio_promedio}", f"{variaciones['precio']:.2f}%")
+                st.metric("Margen Promedio", f"{margen_promedio}%", f"{variaciones['margen']:.2f}%", delta_color="normal")
+                st.metric("Unidades Vendidas", f"{unidades_totales:,.0f}", f"{variaciones['unidades']:.2f}%")
+            with col2:
+                if not ventas_mensuales.empty:
+                    fig = generar_grafico(ventas_mensuales, producto)
+                    st.pyplot(fig)
+                else:
+                    st.warning(f"No hay suficientes datos para generar un gráfico de ventas para {producto}.")
+else:
+    st.info("Por favor, sube un archivo CSV para comenzar.")
+>>>>>>> parent of 70ad468 (Ultimo corregido)
