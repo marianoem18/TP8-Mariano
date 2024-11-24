@@ -1,3 +1,0 @@
-id_venta,fecha,id_cliente,total,metodo_pago,productos
-125691,2024-11-23,,52000.0,Efectivo,[1564]
-125692,2024-11-23,,31800.0,Efectivo,"[265, 1564]"
